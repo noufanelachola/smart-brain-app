@@ -1,9 +1,14 @@
 import './App.css';
+import Navigation from "./components/Navigation/Navigation"; 
+import Rank from "./components/Rank/Rank"; 
+import Description from "./components/Description/Description"; 
 
 function App() {
   return (
     <div className="App">
-      hello
+      <Navigation/>
+      <Rank />
+      <Description />
     </div>
   );
 }
