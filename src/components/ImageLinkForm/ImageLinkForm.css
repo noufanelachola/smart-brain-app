@@ -1,0 +1,14 @@
+.imageLinkForm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+}
+.imageLinkForm input {
+    width: 40%;
+}  
+
+.imageLinkForm input,  
+.imageLinkForm button  {
+    padding: 0.5rem;
+}
