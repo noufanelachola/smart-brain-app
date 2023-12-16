@@ -11,6 +11,7 @@ import { useState } from 'react';
 function App() {
 
   const [imagelink,setImageLink] = useState("");
+  const [box,setBox] = useState({});
 
 
     const PAT = '9adee5fcd2114e51ad526e42d3c1ee94';
@@ -22,8 +23,19 @@ function App() {
 
     const calculateBoundingBox = (data) => {
       const boundingBox = data.outputs[0].data.regions[0].region_info.bounding_box;
-      console.log(boundingBox);
+      // console.log("akjsdfh",boundingBox);
+      const inputImage = document.getElementById("inputImage");
+      const imageheight = Number(inputImage.height);
+      const imagewidth = Number(inputImage.width);
+      return {
+        leftCol : boundingBox.left_col * imagewidth ,
+        topRow : boundingBox.top_row * imageheight ,
+        rightCol : imagewidth - (boundingBox.right_col * imagewidth) ,
+        bottomRow : imageheight - (boundingBox.bottom_row * imageheight)
+      }
     }
+
+    
 
     const raw = JSON.stringify({
         "user_app_id": {
@@ -58,13 +70,17 @@ function App() {
   function onInputSubmit() {
     fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
     .then(response => response.json())
-    .then(result => calculateBoundingBox(result));
+    .then(result => {
+      setBox(calculateBoundingBox(result));
+      console.log(result.outputs[0].data.regions[0].region_info.bounding_box);
+    })
+    .catch(error => console.log('error', error));
 
     // .then(result => console.log(result.outputs[0].data.regions[0].region_info.bounding_box))
-    // .catch(error => console.log('error', error));
+    // .catch(error => console.log('error', error))
     // .then(result => console.log(result))
     // .catch(error => console.log('error', error));
-
+    // console.log("box",box);
   }
 
   return (
@@ -73,7 +89,7 @@ function App() {
       <Rank />
       <Description />
       <ImageLinkForm onInputChange={onInputChange} onInputSubmit={onInputSubmit}/>
-      <FaceRecognition imageSrc={imagelink}/>
+      <FaceRecognition box={box} imageSrc={imagelink}/>
       <ParticlesBg type="color" bg={true} />
     </div>
   );

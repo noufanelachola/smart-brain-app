@@ -1,8 +1,21 @@
 .faceRecognition{
     margin: 2rem;
+    position: relative;
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+    width:fit-content;
 }
 .faceRecognition img {
     width: 500px;
     height: auto;
-    
+}
+.faceRecognition .bounding-box {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: transparent;
+    /* border: 0.25rem rgb(50, 109, 219) solid; */
+    box-shadow: 0 0 0 3px rgb(50, 109, 219) inset;
 }
