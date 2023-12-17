@@ -5,6 +5,9 @@ import Rank from "./components/Rank/Rank";
 import Description from "./components/Description/Description"; 
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/facerecognition';
+import SignIn from './components/SignIn/SignIn';
+import Register from './components/SignIn/Register';
+
 import ParticlesBg from 'particles-bg';
 import { useState } from 'react';
 
@@ -12,6 +15,8 @@ function App() {
 
   const [imagelink,setImageLink] = useState("");
   const [box,setBox] = useState({});
+  const [route,setRoute] = useState("SignIn");
+  const [isSigned,setIsSigned] = useState(false);
 
 
     const PAT = '9adee5fcd2114e51ad526e42d3c1ee94';
@@ -72,7 +77,6 @@ function App() {
     .then(response => response.json())
     .then(result => {
       setBox(calculateBoundingBox(result));
-      console.log(result.outputs[0].data.regions[0].region_info.bounding_box);
     })
     .catch(error => console.log('error', error));
 
@@ -83,15 +87,38 @@ function App() {
     // console.log("box",box);
   }
 
+  const onRouteChange = (page) => {
+    setRoute(page);
+    if(page === "Home"){
+      setIsSigned(true);
+    }
+    else{
+      setIsSigned(false);
+    }
+  } 
+
+
   return (
-    <div className="App">
-      <Navigation/>
-      <Rank />
-      <Description />
-      <ImageLinkForm onInputChange={onInputChange} onInputSubmit={onInputSubmit}/>
-      <FaceRecognition box={box} imageSrc={imagelink}/>
+    <div className="App center">
+      <Navigation onRouteChange={onRouteChange} isSigned={isSigned}/>
+      {
+        route === "Home" 
+          ? 
+            <div>
+              <Rank />
+              <Description />
+              <ImageLinkForm onInputChange={onInputChange} onInputSubmit={onInputSubmit}/>
+              <FaceRecognition box={box} imageSrc={imagelink}/>
+              <ParticlesBg type="color" bg={true} />
+            </div>
+          : (
+              route === "SignIn" 
+                ? <SignIn onRouteChange={onRouteChange} />
+                : <Register onRouteChange={onRouteChange} />
+            )
+      }  
       <ParticlesBg type="color" bg={true} />
-    </div>
+    </div>   
   );
 }
 

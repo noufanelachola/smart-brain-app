@@ -3,11 +3,11 @@ import Logo from "./Logo";
 import SignOut from "./SignOut";
 import "./Navigation.css";
 
-function Navigation() {
+function Navigation(props) {
     return(
         <div className="navigation">
             <Logo />
-            <SignOut/>
+            <SignOut onRouteChange={props.onRouteChange} isSigned={props.isSigned}/>
         </div>
     )
 }
