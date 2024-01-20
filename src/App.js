@@ -17,14 +17,13 @@ function App() {
   const [box,setBox] = useState({});
   const [route,setRoute] = useState("SignIn");
   const [isSigned,setIsSigned] = useState(false);
-
-
-    const PAT = '9adee5fcd2114e51ad526e42d3c1ee94';
-    const USER_ID = 'noufan_elachola';       
-    const APP_ID = 'initial-face-recognition';
-    const MODEL_ID = 'face-detection';
-    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';    
-    const IMAGE_URL = imagelink;
+  const [profile,setProfile] =useState({
+    id : 0,
+    name : "",
+    email : "",
+    entries : 0,
+    joined : ""
+  })
 
     const calculateBoundingBox = (data) => {
       const boundingBox = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -40,45 +39,44 @@ function App() {
       }
     }
 
-    
-
-    const raw = JSON.stringify({
-        "user_app_id": {
-            "user_id": USER_ID,
-            "app_id": APP_ID
-        },
-        "inputs": [
-            {
-                "data": {
-                    "image": {
-                        "url": IMAGE_URL
-                    }
-                }
-            }
-        ]
-    });
-
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Key ' + PAT
-        },
-        body: raw
-    };
+    const loadUser = (user) => {
+      setProfile({
+        id : user.id,
+        name : user.name,
+        email : user.email,
+        entries : user.entries,
+        joined : user.joined
+      })
+      setImageLink("");
+    }
  
-
   function onInputChange(event) {
-    setImageLink(event.target.value)
+    setImageLink(event.target.value);
+    setBox({});
   }
 
   function onInputSubmit() {
-    fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
+    fetch("http://localhost:3000/imageurl",{
+        method : "post",
+        headers : {"Content-Type" : "application/json"},
+        body : JSON.stringify({image : imagelink})
+      })
     .then(response => response.json())
     .then(result => {
       setBox(calculateBoundingBox(result));
-    })
-    .catch(error => console.log('error', error));
+      
+      fetch("http://localhost:3000/image",{
+        method : "put",
+        headers : {"Content-Type" : "application/json"},
+        body : JSON.stringify({id: profile.id})
+      })
+      .then(resp => resp.json())
+      .then(count => {
+        console.log("resp from db",count)
+        setProfile(prevProfile => ({ ...prevProfile, entries: count }));
+        console.log(profile);
+      })
+    }).catch(error => console.log('error', error));
 
     // .then(result => console.log(result.outputs[0].data.regions[0].region_info.bounding_box))
     // .catch(error => console.log('error', error))
@@ -105,7 +103,7 @@ function App() {
         route === "Home" 
           ? 
             <div>
-              <Rank />
+              <Rank name={profile.name} rank={profile.entries} />
               <Description />
               <ImageLinkForm onInputChange={onInputChange} onInputSubmit={onInputSubmit}/>
               <FaceRecognition box={box} imageSrc={imagelink}/>
@@ -113,8 +111,8 @@ function App() {
             </div>
           : (
               route === "SignIn" 
-                ? <SignIn onRouteChange={onRouteChange} />
-                : <Register onRouteChange={onRouteChange} />
+                ? <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
+                : <Register onRouteChange={onRouteChange} loadUser={loadUser} />
             )
       }  
       <ParticlesBg type="color" bg={true} />
